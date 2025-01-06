@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1020563324539",
+    "project_id": "warung-fba80",
+    "storage_bucket": "warung-fba80.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1020563324539:android:7543f5c608c7d510d6ecde",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfTBVTPZ7DWTgeZRdbSV2-bNt6szxihlU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
