@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DetailPage extends StatefulWidget {
   final String? kota_asal;
@@ -16,7 +18,8 @@ class DetailPage extends StatefulWidget {
     this.kota_tujuan,
     this.berat,
     this.kurir,
-    required this.totalHarga, required this.hargaongkir
+    required this.totalHarga,
+    required this.hargaongkir,
   });
 
   @override
@@ -26,18 +29,18 @@ class DetailPage extends StatefulWidget {
 class _DetailPageState extends State<DetailPage> {
   List listData = [];
   var strKey = "1b44549632a971b00279fbd1cf7f1ea5";
-  late int totalHargaDenganOngkir; // Awalnya hanya totalHarga
-  late int ongkirTerpilih; // Ongkir yang dipilih
+  late int totalHargaDenganOngkir;
+  late int ongkirTerpilih;
 
   @override
   void initState() {
     super.initState();
     ongkirTerpilih = widget.hargaongkir;
-    totalHargaDenganOngkir = widget.totalHarga + ongkirTerpilih; // Set awal ke totalHarga
+    totalHargaDenganOngkir = widget.totalHarga + ongkirTerpilih;
     getData();
   }
 
-  Future getData() async {
+  Future<void> getData() async {
     try {
       final response = await http.post(
         Uri.parse("https://api.rajaongkir.com/starter/cost"),
@@ -61,9 +64,72 @@ class _DetailPageState extends State<DetailPage> {
 
   void pilihOngkir(int ongkir) {
     setState(() {
-      ongkirTerpilih = ongkir; // Simpan ongkir yang dipilih
+      ongkirTerpilih = ongkir;
       totalHargaDenganOngkir = widget.totalHarga + ongkirTerpilih;
     });
+  }
+
+  Future<void> _submitOrder(BuildContext context) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        throw Exception("User is not logged in.");
+      }
+
+      final userId = user.uid;
+
+      final body = {
+        'amount': totalHargaDenganOngkir,
+        'user_id': userId,
+      };
+
+      final response = await http.post(
+        Uri.parse('https://radiant-commitment-production.up.railway.app/api/midtrans'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(response.body);
+        var redirectUrl = data['redirectUrl'];
+
+        if (redirectUrl != null && redirectUrl.isNotEmpty) {
+          // Memastikan URL tidak duplikat protokol (https://https://)
+          if (redirectUrl.startsWith('https://https://')) {
+            redirectUrl = redirectUrl.replaceFirst('https://', '');
+          } else if (redirectUrl.startsWith('http://http://')) {
+            redirectUrl = redirectUrl.replaceFirst('http://', '');
+          }
+
+          try {
+            final Uri uri = Uri.parse(redirectUrl);
+
+            // Memeriksa apakah URL dapat diluncurkan
+              if (await canLaunchUrl(uri)) {
+              await launchUrl(
+                uri,
+                mode: LaunchMode.inAppWebView, // Membuka di dalam WebView aplikasi
+              );
+            } else {
+              throw Exception('Could not launch URL: $redirectUrl');
+            }
+          } catch (e) {
+            // Menangani kesalahan parsing atau URL yang invalid
+            throw Exception('Invalid URL or error launching URL: $redirectUrl. Error: $e');
+          }
+        } else {
+          throw Exception('Invalid redirect URL: $redirectUrl');
+        }
+      } else {
+        final error = json.decode(response.body)['message'];
+        throw Exception(error ?? 'Failed to process order.');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
   }
 
   @override
@@ -131,12 +197,7 @@ class _DetailPageState extends State<DetailPage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {
-                    // Logika pembayaran atau navigasi ke halaman pembayaran
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text("Membayar Rp $totalHargaDenganOngkir"),
-                    ));
-                  },
+                  onPressed: () => _submitOrder(context),
                   child: const Text("Bayar"),
                 ),
               ],

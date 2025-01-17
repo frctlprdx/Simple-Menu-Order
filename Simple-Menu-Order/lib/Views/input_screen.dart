@@ -41,7 +41,7 @@ class _AddItemScreenState extends State<InputScreen> {
       _isLoading = true;
     });
 
-    const url = 'https://lively-forgiveness-production.up.railway.app/api/products';
+    const url = 'https://radiant-commitment-production.up.railway.app/api/products';
 
     try {
       final response = await http.post(

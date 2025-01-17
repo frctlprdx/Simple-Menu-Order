@@ -19,7 +19,7 @@ class _MenuScreenState extends State<MenuScreen> {
   List<Map<String, dynamic>> _cart = [];
 
   Future<List<Map<String, dynamic>>> _fetchMenuItems() async {
-    final url = Uri.parse('https://lively-forgiveness-production.up.railway.app/api/products');
+    final url = Uri.parse('https://radiant-commitment-production.up.railway.app/api/products');
     final response = await http.get(url);
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);

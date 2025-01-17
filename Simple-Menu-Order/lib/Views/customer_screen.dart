@@ -37,7 +37,7 @@ class _CustomerScreenState extends State<CustomerScreen> {
   }
 
   Future<void> _fetchUsers() async {
-    final url = Uri.parse('https://lively-forgiveness-production.up.railway.app/api/customers');
+    final url = Uri.parse('https://radiant-commitment-production.up.railway.app/api/customers');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {

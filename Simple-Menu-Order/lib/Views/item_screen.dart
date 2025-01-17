@@ -24,7 +24,7 @@ class _ItemScreenState extends State<ItemScreen> {
       _isLoading = true;
     });
 
-    const url = 'https://lively-forgiveness-production.up.railway.app/api/products';
+    const url = 'https://radiant-commitment-production.up.railway.app/api/products';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -44,7 +44,7 @@ class _ItemScreenState extends State<ItemScreen> {
   }
 
   Future<void> _deleteProduct(String productId) async {
-    final url = 'https://lively-forgiveness-production.up.railway.app/api/products$productId';
+    final url = 'https://radiant-commitment-production.up.railway.app/api/products/$productId';
     try {
       final response = await http.delete(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -59,7 +59,7 @@ class _ItemScreenState extends State<ItemScreen> {
   }
 
   Future<void> _editProduct(String productId, Map<String, dynamic> updatedData) async {
-    final url = 'https://lively-forgiveness-production.up.railway.app/api/products/$productId';
+    final url = 'https://radiant-commitment-production.up.railway.app/api/products/$productId';
     try {
       final response = await http.put(
         Uri.parse(url),
